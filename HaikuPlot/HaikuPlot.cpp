@@ -28,22 +28,20 @@ HaikuPlot::HaikuPlot(void)
 	: BWindow(BRect(100,100,700,600), "HaikuPlot", B_TITLED_WINDOW,
 		B_ASYNCHRONOUS_CONTROLS)
 {
-	BView *input_view = new BView(BRect(0,0,700,100), "input_textview",
+	BRect r(Bounds());
+	r.bottom = 20;
+	BMenuBar *fMenuBar = new BMenuBar(r, "menubar");
+	AddChild(fMenuBar);
+	
+	BMenu *fFileMenu = new BMenu("File");
+	
+	fFileMenu->AddItem(new BMenuItem("Load", new BMessage(LOAD_PLOT), 'L',
+		B_COMMAND_KEY));
+	
+	fMenuBar->AddItem(fFileMenu);
+	
+	fPictureView = new BView(BRect(0,20,700,600), "picture_view",
 		B_FOLLOW_ALL, B_WILL_DRAW);
-	AddChild(input_view);
-		
-	BButton *command = new BButton(BRect(0,0,100,50), "commandbutton",
-		"Command:", new BMessage(LOAD_PLOT), B_FOLLOW_LEFT |
-		B_FOLLOW_BOTTOM);
-	BTextView *input_textview = new BTextView(BRect(105,0,700,50), "input",
-		B_FOLLOW_ALL, B_WILL_DRAW | B_PULSE_NEEDED | B_FRAME_EVENTS);
-	input_textview->MakeEditable(true);
-	
-	input_view->AddChild(command);
-	input_view->AddChild(input_textview);
-	
-	fPictureView = new BView(BRect(0,110,700,600), "picture_view",
-		B_FOLLOW_NONE, B_WILL_DRAW);
 	AddChild(fPictureView);
 	
 	BMessenger msgr(NULL, this);

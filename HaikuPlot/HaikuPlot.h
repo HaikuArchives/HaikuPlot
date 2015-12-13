@@ -26,7 +26,6 @@ class HaikuPlot : public BWindow
 		
 		BFilePanel *fOpenPanel;
 		BBitmap *fPictureBitmap;
-		BPicture *fPicturePicture;
 		BView *fPictureView;
 };
 
