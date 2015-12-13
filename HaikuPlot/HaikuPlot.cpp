@@ -44,12 +44,6 @@ HaikuPlot::HaikuPlot(void)
 	
 	fPictureView = new BView(BRect(0,110,700,600), "picture_view",
 		B_FOLLOW_NONE, B_WILL_DRAW);
-	
-	BBitmap *blank_bitmap = new BBitmap(fPictureView.bounds(), B_CMAP8,
-		true);
-	BView test_view = new BView(blank_bitmap.bounds(), "test_view",
-		B_FOLLOW_NONE, B_WILL_DRAW);
-	blank_bitmap->AddChild(test_view);
 	AddChild(fPictureView);
 	
 	BMessenger msgr(NULL, this);
