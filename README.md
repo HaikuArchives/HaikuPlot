@@ -1,4 +1,4 @@
 # HaikuPlot
-Haiku App for gnuplot
+Haiku App for the gnuplot terminal command.
 
 ![Image of DynaMate](images/HaikuPlot.png)
