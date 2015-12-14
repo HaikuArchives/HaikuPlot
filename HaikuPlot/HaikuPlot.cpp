@@ -95,4 +95,9 @@ void HaikuPlot::LoadPlot(const entry_ref &ref)
 	fPictureBitmap = BTranslationUtils::GetBitmap(path.Path());
 	
 	fPictureView->SetViewBitmap(fPictureBitmap);
+	fPictureView->ResizeTo(fPictureBitmap->Bounds().Width(),
+		fPictureBitmap->Bounds().Height());
+	
+	this->ResizeTo(fPictureView->Bounds().Width(),
+		fPictureView->Bounds().Height() + 20);
 }
