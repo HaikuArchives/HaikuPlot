@@ -30,7 +30,6 @@ class HaikuPlot : public BWindow
 		BFilePanel *fOpenPanel;
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
-		BTextControl *fGnuplotInput;
 		
 		bool are_refs_generated;
 };

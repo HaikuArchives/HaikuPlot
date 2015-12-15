@@ -37,15 +37,6 @@ HaikuPlot::HaikuPlot(void)
 	BMenuBar *fMenuBar = new BMenuBar(r, "menubar");
 	AddChild(fMenuBar);
 	
-	BView *input_view = new BView(BRect(0,20,700,100), "input_view",
-		B_FOLLOW_LEFT | B_FOLLOW_RIGHT | B_FOLLOW_TOP, B_WILL_DRAW);
-	AddChild(input_view);
-	
-	fGnuplotInput = new BTextControl(BRect(0,0,700,100),
-		"HaikuPlot::GeneratePlotInputControl", "Gnuplot Input", "", NULL,
-		B_FOLLOW_ALL);
-	input_view->AddChild(fGnuplotInput);
-	
 	BMenu *fFileMenu = new BMenu("File");
 	
 	fFileMenu->AddItem(new BMenuItem("Load", new BMessage(LOAD_PLOT), 'L',
@@ -55,7 +46,7 @@ HaikuPlot::HaikuPlot(void)
 	
 	fMenuBar->AddItem(fFileMenu);
 	
-	fPictureView = new BView(BRect(0,120,700,600), "picture_view",
+	fPictureView = new BView(BRect(0,20,700,600), "picture_view",
 		B_FOLLOW_ALL, B_WILL_DRAW);
 	AddChild(fPictureView);
 	
@@ -76,6 +67,7 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		case LOAD_PLOT:
 		{
 			fOpenPanel->Show();
+			//loading_plot = true;
 			are_refs_generated = false;
 			break;
 		}
@@ -119,10 +111,10 @@ void HaikuPlot::GeneratePlot(const entry_ref &ref)
 	BPath path(&real_ref);
 	
 	BString *command = new
-		BString("gnuplot-x86 -e 'set output \"outpic.png\"");
+		BString("gnuplot-x86 -e 'set output \"outpic.png\"'");
 	command->Append(path.Path());
 	
-	printf( "%s\n", command);
+	printf( "%s\n", command->String());
 	
 	if (system(command->String()) == 0)
 	{
@@ -149,5 +141,5 @@ void HaikuPlot::LoadPlot(const entry_ref &ref)
 		fPictureBitmap->Bounds().Height());
 	
 	this->ResizeTo(fPictureView->Bounds().Width(),
-		fPictureView->Bounds().Height() + 120);
+		fPictureView->Bounds().Height() + 20);
 }
