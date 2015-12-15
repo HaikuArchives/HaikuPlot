@@ -20,6 +20,7 @@
 #include <TranslationUtils.h>
 #include <stdlib.h>
 #include <Roster.h>
+#include <NodeMonitor.h>
 
 enum
 {
@@ -39,9 +40,9 @@ HaikuPlot::HaikuPlot(void)
 	
 	BMenu *fFileMenu = new BMenu("File");
 	
-	fFileMenu->AddItem(new BMenuItem("Load", new BMessage(LOAD_PLOT), 'L',
-		B_COMMAND_KEY));
-	fFileMenu->AddItem(new BMenuItem("Generate",
+	fFileMenu->AddItem(new BMenuItem("Load Plot", new BMessage(LOAD_PLOT),
+		'L', B_COMMAND_KEY));
+	fFileMenu->AddItem(new BMenuItem("Generate Plot",
 		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	
 	fMenuBar->AddItem(fFileMenu);
@@ -67,26 +68,45 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		case LOAD_PLOT:
 		{
 			fOpenPanel->Show();
+			
+			loading = true;
 			loading_plot = true;
+			
 			break;
 		}
 		case GENERATE_PLOT:
 		{
 			fOpenPanel->Show();
+			
+			loading = true;
 			loading_plot = false;
+			
 			break;
 		}
 		case B_REFS_RECEIVED:
 		{
-			entry_ref ref;
-			if (msg->FindRef("refs", &ref) != B_OK)
-				break;
+			if (loading)
+			{
+				loading = false;
+				entry_ref ref;
+				if (msg->FindRef("refs", &ref) != B_OK)
+					break;
 			
-			if (loading_plot)
-				LoadPlot(ref);
-			else
-				GeneratePlot(ref);
+				if (loading_plot)
+					LoadPlot(ref);
+				else
+					GeneratePlot(ref);
+			} else
+			{
 				
+			}
+			
+			break;
+		}
+		case B_NODE_MONITOR:
+		{
+			HandleNodeMonitoring(msg);
+			
 			break;
 		}
 		default:
@@ -97,8 +117,31 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 	}
 }
 
+void HaikuPlot::HandleNodeMonitoring(BMessage *msg)
+{
+	int32 opcode;
+	if (msg->FindInt32("opcode", &opcode) != B_OK)
+		return;
+	
+	switch (opcode)
+	{
+		case B_STAT_CHANGED:
+		{
+			GeneratePlot(fRef);
+			
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+}
+
 void HaikuPlot::GeneratePlot(const entry_ref &ref)
 {
+	PrepareNodeMonitoring(ref);
+	
 	BEntry entry(&ref, true);
 	entry_ref real_ref;
 	entry.GetRef(&real_ref);
@@ -121,6 +164,19 @@ void HaikuPlot::GeneratePlot(const entry_ref &ref)
 		
 		LoadPlot(pic_ref);
 	}
+}
+
+void HaikuPlot::PrepareNodeMonitoring(const entry_ref &ref)
+{
+	BFile file(&ref, B_READ_ONLY);
+	if (file.InitCheck() != B_OK)
+		return;
+	
+	BEntry entry(&ref, true);
+	entry.GetRef(&fRef);
+	entry.GetNodeRef(&fNodeRef);
+	
+	watch_node(&fNodeRef, B_WATCH_STAT, this);
 }
 
 void HaikuPlot::LoadPlot(const entry_ref &ref)
