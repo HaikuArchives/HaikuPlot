@@ -21,7 +21,9 @@
 
 enum
 {
-	LOAD_PLOT = 'ldpt'
+	LOAD_PLOT = 'ldpt',
+	GENERATE_PLOT = 'gnpt',
+	TEXT_EDITED = 'txed'
 };
 
 HaikuPlot::HaikuPlot(void)
@@ -33,14 +35,25 @@ HaikuPlot::HaikuPlot(void)
 	BMenuBar *fMenuBar = new BMenuBar(r, "menubar");
 	AddChild(fMenuBar);
 	
+	BView *input_view = new BView(BRect(0,20,700,100), "input_view",
+		B_FOLLOW_LEFT | B_FOLLOW_RIGHT | B_FOLLOW_TOP, B_WILL_DRAW);
+	AddChild(input_view);
+	
+	fGnuplotInput = new BTextControl(BRect(0,0,700,100),
+		"HaikuPlot::GeneratePlotInputControl", "Gnuplot Input", "", NULL,
+		B_FOLLOW_ALL);
+	input_view->AddChild(fGnuplotInput);
+	
 	BMenu *fFileMenu = new BMenu("File");
 	
 	fFileMenu->AddItem(new BMenuItem("Load", new BMessage(LOAD_PLOT), 'L',
 		B_COMMAND_KEY));
+	fFileMenu->AddItem(new BMenuItem("Generate",
+		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	
 	fMenuBar->AddItem(fFileMenu);
 	
-	fPictureView = new BView(BRect(0,20,700,600), "picture_view",
+	fPictureView = new BView(BRect(0,120,700,600), "picture_view",
 		B_FOLLOW_ALL, B_WILL_DRAW);
 	AddChild(fPictureView);
 	
@@ -63,6 +76,11 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 			fOpenPanel->Show();
 			break;
 		}
+		case GENERATE_PLOT:
+		{
+			GeneratePlot();
+			break;
+		}
 		case B_REFS_RECEIVED:
 		{
 			entry_ref ref;
@@ -77,6 +95,41 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 			break;
 		}
 	}
+}
+
+void HaikuPlot::GeneratePlot(void)
+{
+	BString command(
+		"gnuplot-x86 -e 'set terminal png; set output simple.png;'");
+	command << BString(fGnuplotInput->Text());
+	
+	if (system(command) == 0)
+	{
+		LoadPlot();
+	}
+}
+
+void HaikuPlot::LoadPlot(void)
+{
+	fPictureView->ClearViewBitmap();
+	
+	BEntry entry("simple.png");
+	entry_ref real_ref;
+	entry.GetRef(&real_ref);
+	
+	BFile file(&real_ref, B_READ_ONLY);
+	if (file.InitCheck() != B_OK)
+		return;
+	
+	BPath path(&real_ref);
+	fPictureBitmap = BTranslationUtils::GetBitmap(path.Path());
+	
+	fPictureView->SetViewBitmap(fPictureBitmap);
+	fPictureView->ResizeTo(fPictureBitmap->Bounds().Width(),
+		fPictureBitmap->Bounds().Height());
+	
+	this->ResizeTo(fPictureView->Bounds().Width(),
+		fPictureView->Bounds().Height() + 120);
 }
 
 void HaikuPlot::LoadPlot(const entry_ref &ref)
@@ -99,5 +152,5 @@ void HaikuPlot::LoadPlot(const entry_ref &ref)
 		fPictureBitmap->Bounds().Height());
 	
 	this->ResizeTo(fPictureView->Bounds().Width(),
-		fPictureView->Bounds().Height() + 20);
+		fPictureView->Bounds().Height() + 120);
 }
