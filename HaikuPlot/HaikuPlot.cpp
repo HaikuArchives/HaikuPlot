@@ -63,13 +63,22 @@ bool HaikuPlot::QuitRequested(void)
 
 void HaikuPlot::MessageReceived(BMessage *msg)
 {
+	if (msg->WasDropped())
+	{
+		entry_ref ref;
+		if (msg->FindRef("refs", &ref) != B_OK)
+			return;
+		
+		GeneratePlot(ref);
+		return;
+	}
+	
 	switch (msg->what)
 	{
 		case LOAD_PLOT:
 		{
 			fOpenPanel->Show();
 			
-			loading = true;
 			loading_plot = true;
 			
 			break;
@@ -77,29 +86,21 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		case GENERATE_PLOT:
 		{
 			fOpenPanel->Show();
-			
-			loading = true;
 			loading_plot = false;
 			
 			break;
 		}
 		case B_REFS_RECEIVED:
 		{
-			if (loading)
-			{
-				loading = false;
-				entry_ref ref;
-				if (msg->FindRef("refs", &ref) != B_OK)
-					break;
+			loading = false;
+			entry_ref ref;
+			if (msg->FindRef("refs", &ref) != B_OK)
+				break;
 			
-				if (loading_plot)
-					LoadPlot(ref);
-				else
-					GeneratePlot(ref);
-			} else
-			{
-				
-			}
+			if (loading_plot)
+				LoadPlot(ref);
+			else
+				GeneratePlot(ref);
 			
 			break;
 		}
