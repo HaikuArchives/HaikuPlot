@@ -67,14 +67,13 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		case LOAD_PLOT:
 		{
 			fOpenPanel->Show();
-			//loading_plot = true;
-			are_refs_generated = false;
+			loading_plot = true;
 			break;
 		}
 		case GENERATE_PLOT:
 		{
 			fOpenPanel->Show();
-			are_refs_generated = true;
+			loading_plot = false;
 			break;
 		}
 		case B_REFS_RECEIVED:
@@ -83,10 +82,10 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 			if (msg->FindRef("refs", &ref) != B_OK)
 				break;
 			
-			if (are_refs_generated)
-				GeneratePlot(ref);
-			else
+			if (loading_plot)
 				LoadPlot(ref);
+			else
+				GeneratePlot(ref);
 				
 			break;
 		}
@@ -111,13 +110,16 @@ void HaikuPlot::GeneratePlot(const entry_ref &ref)
 	BPath path(&real_ref);
 	
 	BString *command = new
-		BString("gnuplot-x86 -e 'set output \"outpic.png\"'");
+		BString("gnuplot-x86 -e 'set output \"outpic.png\"' ");
 	command->Append(path.Path());
-	
-	printf( "%s\n", command->String());
 	
 	if (system(command->String()) == 0)
 	{
+		BEntry entry("outpic.png");
+		entry_ref pic_ref;
+		entry.GetRef(&pic_ref);
+		
+		LoadPlot(pic_ref);
 	}
 }
 
