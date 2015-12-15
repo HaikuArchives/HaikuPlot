@@ -25,12 +25,14 @@ class HaikuPlot : public BWindow
 	private:
 		void LoadPlot(const entry_ref &ref);
 		void LoadPlot(void);
-		void GeneratePlot(void);
+		void GeneratePlot(const entry_ref &ref);
 		
 		BFilePanel *fOpenPanel;
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
 		BTextControl *fGnuplotInput;
+		
+		bool are_refs_generated;
 };
 
 #endif

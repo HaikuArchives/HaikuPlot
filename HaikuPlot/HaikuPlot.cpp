@@ -19,6 +19,7 @@
 #include <Messenger.h>
 #include <TranslationUtils.h>
 #include <stdlib.h>
+#include <Roster.h>
 
 enum
 {
@@ -75,11 +76,13 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		case LOAD_PLOT:
 		{
 			fOpenPanel->Show();
+			are_refs_generated = false;
 			break;
 		}
 		case GENERATE_PLOT:
 		{
-			GeneratePlot();
+			fOpenPanel->Show();
+			are_refs_generated = true;
 			break;
 		}
 		case B_REFS_RECEIVED:
@@ -87,7 +90,12 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 			entry_ref ref;
 			if (msg->FindRef("refs", &ref) != B_OK)
 				break;
-			LoadPlot(ref);
+			
+			if (are_refs_generated)
+				GeneratePlot(ref);
+			else
+				LoadPlot(ref);
+				
 			break;
 		}
 		default:
@@ -98,24 +106,9 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 	}
 }
 
-void HaikuPlot::GeneratePlot(void)
+void HaikuPlot::GeneratePlot(const entry_ref &ref)
 {
-	BString *command = new
-		BString("gnuplot-x86 -e \'set terminal png; set output simple.png;");
-	command->Append(fGnuplotInput->Text());
-	command->Append("\'");
-	
-	if (system(command->String()) == 0)
-	{
-		LoadPlot();
-	}
-}
-
-void HaikuPlot::LoadPlot(void)
-{
-	fPictureView->ClearViewBitmap();
-	
-	BEntry entry("simple.png");
+	BEntry entry(&ref, true);
 	entry_ref real_ref;
 	entry.GetRef(&real_ref);
 	
@@ -124,14 +117,16 @@ void HaikuPlot::LoadPlot(void)
 		return;
 	
 	BPath path(&real_ref);
-	fPictureBitmap = BTranslationUtils::GetBitmap(path.Path());
 	
-	fPictureView->SetViewBitmap(fPictureBitmap);
-	fPictureView->ResizeTo(fPictureBitmap->Bounds().Width(),
-		fPictureBitmap->Bounds().Height());
+	BString *command = new
+		BString("gnuplot-x86 -e 'set output \"outpic.png\"");
+	command->Append(path.Path());
 	
-	this->ResizeTo(fPictureView->Bounds().Width(),
-		fPictureView->Bounds().Height() + 120);
+	printf( "%s\n", command);
+	
+	if (system(command->String()) == 0)
+	{
+	}
 }
 
 void HaikuPlot::LoadPlot(const entry_ref &ref)
