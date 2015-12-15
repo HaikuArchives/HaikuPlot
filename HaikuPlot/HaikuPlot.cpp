@@ -18,6 +18,7 @@
 #include <MenuItem.h>
 #include <Messenger.h>
 #include <TranslationUtils.h>
+#include <stdlib.h>
 
 enum
 {
@@ -99,11 +100,12 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 
 void HaikuPlot::GeneratePlot(void)
 {
-	BString command(
-		"gnuplot-x86 -e 'set terminal png; set output simple.png;'");
-	command << BString(fGnuplotInput->Text());
+	BString *command = new
+		BString("gnuplot-x86 -e \'set terminal png; set output simple.png;");
+	command->Append(fGnuplotInput->Text());
+	command->Append("\'");
 	
-	if (system(command) == 0)
+	if (system(command->String()) == 0)
 	{
 		LoadPlot();
 	}

@@ -12,6 +12,7 @@
 #include <String.h>
 #include <FilePanel.h>
 #include <Entry.h>
+#include <TextControl.h>
 
 class HaikuPlot : public BWindow
 {
@@ -23,10 +24,13 @@ class HaikuPlot : public BWindow
 		
 	private:
 		void LoadPlot(const entry_ref &ref);
+		void LoadPlot(void);
+		void GeneratePlot(void);
 		
 		BFilePanel *fOpenPanel;
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
+		BTextControl *fGnuplotInput;
 };
 
 #endif
