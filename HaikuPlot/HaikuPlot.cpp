@@ -78,7 +78,6 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		case LOAD_PLOT:
 		{
 			fOpenPanel->Show();
-			
 			loading_plot = true;
 			
 			break;
@@ -92,7 +91,6 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		}
 		case B_REFS_RECEIVED:
 		{
-			loading = false;
 			entry_ref ref;
 			if (msg->FindRef("refs", &ref) != B_OK)
 				break;

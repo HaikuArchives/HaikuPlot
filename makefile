@@ -29,6 +29,7 @@ SRCS = \
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
 RDEFS = \
+	 HaikuPlot/HaikuPlot.rdef  \
 
 
 #	Specify the resource files to use. Full or relative paths can be used.
@@ -38,6 +39,12 @@ RSRCS = \
 
 # End Pe/Eddie support.
 # @<-src@ 
+#%}
+
+#%}
+
+#%}
+
 #%}
 
 #%}

@@ -16,7 +16,7 @@ class App : public BApplication
 };
 
 App::App(void)
-	: BApplication("application/x-vnd.wgp-haikuplot")
+	: BApplication("application/x-vnd.haikuplot")
 {
 	HaikuPlot *mainWin = new HaikuPlot();
 	mainWin->Show();
