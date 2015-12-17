@@ -6,6 +6,7 @@
 
 # The name of the binary.
 NAME = HaikuPlot
+TARGET_DIR = HaikuPlot
 
 # The type of binary, must be one of:
 #	APP:	Application
