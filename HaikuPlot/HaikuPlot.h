@@ -35,7 +35,6 @@ class HaikuPlot : public BWindow
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
 		
-		bool loading;
 		bool loading_plot;
 		
 		entry_ref fRef;
