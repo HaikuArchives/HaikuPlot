@@ -27,8 +27,7 @@
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <ControlLook.h>
-
-#include "AboutWindow.h"
+#include <private/interface/AboutWindow.h>
 
 enum
 {
@@ -106,7 +105,6 @@ void HaikuPlot::_BuildLayout()
 			.AddGroup(B_VERTICAL, spacing / 2)
 				.Add(fScriptView)
 			.End()
-		.SetInsets(spacing)
 		.View();
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
@@ -182,7 +180,13 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		}
 		case SHOW_ABOUT:
 		{
-			AboutWindow *about = new AboutWindow();
+			//AboutWindow *about = new AboutWindow();
+			BAboutWindow *about = new BAboutWindow("HaikuPlot",
+				"application/x-vnd.haikuplot");
+			
+			about->AddDescription("A GUI interface to the popular command line graphing tool gnuplot");
+			about->AddCopyright(2015, "Vale Tolpegin");
+			
 			about->Show();
 		}
 		case MSG_GENERATE_SCRIPT:
@@ -251,6 +255,7 @@ void HaikuPlot::GeneratePlot(const entry_ref &ref)
 	fScriptView->SetText("");
 	if (BTranslationUtils::GetStyledText(&file, fScriptView) != B_OK)
 	{
+		return;
 	}
 	
 	BPath path(&real_ref);
