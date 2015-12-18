@@ -12,8 +12,13 @@
 #include <String.h>
 #include <FilePanel.h>
 #include <Entry.h>
+#include <Directory.h>
 #include <TextControl.h>
+#include <Bitmap.h>
 #include <Node.h>
+#include <TranslationUtils.h>
+#include <TranslationDefs.h>
+#include <TranslatorRoster.h>
 
 class HaikuPlot : public BWindow
 {
@@ -33,6 +38,8 @@ class HaikuPlot : public BWindow
 		
 		void _SaveAs(BMessage *message);
 		void _SaveToFile(BMessage *message);
+		void SaveToFile(BDirectory* dir, const char* name, BBitmap* bitmap,
+			const translation_format* format);
 		
 		BFilePanel *fOpenPanel;
 		BFilePanel *fSavePanel;

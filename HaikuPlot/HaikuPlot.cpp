@@ -8,7 +8,6 @@
 #include <View.h>
 #include <Application.h>
 #include <Button.h>
-#include <Bitmap.h>
 #include <BitmapStream.h>
 #include <TextView.h>
 #include <Bitmap.h>
@@ -19,20 +18,18 @@
 #include <Menu.h>
 #include <MenuItem.h>
 #include <Messenger.h>
-#include <TranslationUtils.h>
-#include <TranslationDefs.h>
-#include <TranslatorRoster.h>
 #include <stdlib.h>
 #include <Roster.h>
 #include <NodeMonitor.h>
 #include <SupportDefs.h>
+#include <NodeInfo.h>
 
 enum
 {
 	LOAD_PLOT = 'ldpt',
 	GENERATE_PLOT = 'gnpt',
 	MSG_SAVE_PANEL = 'mgsp',
-	MSG_OUTPUT_TYPE = 'mgot',
+	MSG_OUTPUT_TYPE = 'BTMN',
 	SAVE_PLOT = 'svas'
 };
 
@@ -301,4 +298,52 @@ void HaikuPlot::_SaveToFile(BMessage* message)
 	}
 	if (i == outCount)
 		return;
+		
+		// Write out the image file
+	BDirectory dir(&dirRef);
+	SaveToFile(&dir, filename, NULL, &outFormat[i]);
+}
+
+void HaikuPlot::SaveToFile(BDirectory* dir, const char* name,
+	BBitmap* bitmap, const translation_format* format)
+{
+	if (bitmap == NULL) {
+		// If no bitmap is supplied, write out the whole image
+		bitmap = fPictureBitmap;
+	}
+
+	BBitmapStream stream(bitmap);
+
+	bool loop = true;
+	while (loop) {
+		BTranslatorRoster* roster = BTranslatorRoster::Default();
+		if (!roster)
+			break;
+		// write data
+		BFile file(dir, name, B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+		if (file.InitCheck() != B_OK)
+			break;
+		if (roster->Translate(&stream, NULL, NULL, &file, format->type) < B_OK)
+			break;
+		// set mime type
+		BNodeInfo info(&file);
+		if (info.InitCheck() == B_OK)
+			info.SetType(format->MIME);
+
+		loop = false;
+			// break out of loop gracefully (indicates no errors)
+	}
+	/*if (loop) {
+		// If loop terminated because of a break, there was an error
+		char buffer[512];
+		snprintf(buffer, sizeof(buffer), B_TRANSLATE("The file '%s' could not "
+			"be written."), name);
+		BAlert* palert = new BAlert("", buffer, B_TRANSLATE("OK"));
+		palert->SetFlags(palert->Flags() | B_CLOSE_ON_ESCAPE);
+		palert->Go();
+	}*/
+
+	stream.DetachBitmap(&bitmap);
+		// Don't allow the bitmap to be deleted, this is
+		// especially important when using fBitmap as the bitmap
 }
