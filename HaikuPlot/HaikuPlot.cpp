@@ -49,7 +49,7 @@ HaikuPlot::HaikuPlot(void)
 	
 	BMenu *fFileMenu = new BMenu("File");
 	
-	fFileMenu->AddItem(new BMenuItem("Open", new BMessage(LOAD_PLOT),
+	fFileMenu->AddItem(new BMenuItem("Open Plot", new BMessage(LOAD_PLOT),
 		'L', B_COMMAND_KEY));
 	fFileMenu->AddSeparatorItem();
 	
