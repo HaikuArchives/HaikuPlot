@@ -44,10 +44,13 @@ class HaikuPlot : public BWindow
 		void SaveToFile(BDirectory* dir, const char* name, BBitmap* bitmap,
 			const translation_format* format);
 		
+		void SaveScript(void);
+		
 		BFilePanel *fOpenPanel;
 		BFilePanel *fSavePanel;
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
+		BTextView *fScriptView;
 		
 		BSplitView *fMainSplitView;
 		
