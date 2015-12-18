@@ -8,6 +8,8 @@
 #include <View.h>
 #include <Application.h>
 #include <Button.h>
+#include <Bitmap.h>
+#include <BitmapStream.h>
 #include <TextView.h>
 #include <Bitmap.h>
 #include <Alert.h>
@@ -18,15 +20,19 @@
 #include <MenuItem.h>
 #include <Messenger.h>
 #include <TranslationUtils.h>
+#include <TranslationDefs.h>
+#include <TranslatorRoster.h>
 #include <stdlib.h>
 #include <Roster.h>
 #include <NodeMonitor.h>
+#include <SupportDefs.h>
 
 enum
 {
 	LOAD_PLOT = 'ldpt',
 	GENERATE_PLOT = 'gnpt',
-	TEXT_EDITED = 'txed'
+	TEXT_EDITED = 'txed',
+	SAVE_PLOT = 'svas'
 };
 
 HaikuPlot::HaikuPlot(void)
@@ -40,8 +46,16 @@ HaikuPlot::HaikuPlot(void)
 	
 	BMenu *fFileMenu = new BMenu("File");
 	
-	fFileMenu->AddItem(new BMenuItem("Load Plot", new BMessage(LOAD_PLOT),
+	fFileMenu->AddItem(new BMenuItem("Open", new BMessage(LOAD_PLOT),
 		'L', B_COMMAND_KEY));
+	fFileMenu->AddSeparatorItem();
+	
+	BMenu *menuSaveAs = new BMenu("Save as", B_ITEMS_IN_COLUMN);
+	BTranslationUtils::AddTranslationItems(menuSaveAs,
+		B_TRANSLATOR_BITMAP);
+	
+	fFileMenu->AddItem(menuSaveAs);
+	
 	fFileMenu->AddItem(new BMenuItem("Generate Plot",
 		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	
