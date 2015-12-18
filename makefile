@@ -22,6 +22,7 @@ APP_MIME_SIG =
 #	so that Pe and Eddie can fill them in for you.
 #%{
 SRCS = \
+	 HaikuPlot/AboutWindow.cpp  \
 	 HaikuPlot/App.cpp  \
 	 HaikuPlot/HaikuPlot.cpp  \
 
@@ -39,6 +40,8 @@ RSRCS = \
 
 # End Pe/Eddie support.
 # @<-src@ 
+#%}
+
 #%}
 
 #%}

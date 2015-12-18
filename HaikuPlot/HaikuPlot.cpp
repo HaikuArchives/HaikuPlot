@@ -24,13 +24,16 @@
 #include <SupportDefs.h>
 #include <NodeInfo.h>
 
+#include "AboutWindow.h"
+
 enum
 {
 	LOAD_PLOT = 'ldpt',
 	GENERATE_PLOT = 'gnpt',
 	MSG_SAVE_PANEL = 'mgsp',
 	MSG_OUTPUT_TYPE = 'BTMN',
-	SAVE_PLOT = 'svas'
+	SAVE_PLOT = 'svas',
+	SHOW_ABOUT = 'swat'
 };
 
 const char* kTypeField = "be:type";
@@ -53,7 +56,7 @@ HaikuPlot::HaikuPlot(void)
 		'L', B_COMMAND_KEY));
 	fFileMenu->AddSeparatorItem();
 	
-	BMenu *menuSaveAs = new BMenu("Save as", B_ITEMS_IN_COLUMN);
+	BMenu *menuSaveAs = new BMenu("Export as", B_ITEMS_IN_COLUMN);
 	BTranslationUtils::AddTranslationItems(menuSaveAs,
 		B_TRANSLATOR_BITMAP);
 	
@@ -63,6 +66,13 @@ HaikuPlot::HaikuPlot(void)
 		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	
 	fMenuBar->AddItem(fFileMenu);
+	
+	BMenu *fSettingsMenu = new BMenu("Settings");
+	
+	fSettingsMenu->AddItem(new BMenuItem("About", new BMessage(SHOW_ABOUT),
+		'A', B_COMMAND_KEY));
+		
+	fMenuBar->AddItem(fSettingsMenu);
 	
 	fPictureView = new BView(BRect(0,20,700,600), "picture_view",
 		B_FOLLOW_ALL, B_WILL_DRAW);
@@ -137,6 +147,11 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 			HandleNodeMonitoring(msg);
 			
 			break;
+		}
+		case SHOW_ABOUT:
+		{
+			AboutWindow *about = new AboutWindow();
+			about->Show();
 		}
 		default:
 		{
