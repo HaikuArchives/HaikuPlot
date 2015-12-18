@@ -70,19 +70,14 @@ void HaikuPlot::_BuildLayout()
 	
 	fFileMenu->AddItem(new BMenuItem("Open Plot", new BMessage(LOAD_PLOT),
 		'L', B_COMMAND_KEY));
+	fFileMenu->AddItem(new BMenuItem("Open Script",
+		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	fFileMenu->AddSeparatorItem();
 	BTranslationUtils::AddTranslationItems(fMenuSaveAs,
 		B_TRANSLATOR_BITMAP);
 	fFileMenu->AddItem(fMenuSaveAs);
-	fFileMenu->AddItem(new BMenuItem("Load Script",
-		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	
 	fMenuBar->AddItem(fFileMenu);
-	
-	fSettingsMenu->AddItem(new BMenuItem("About", new BMessage(SHOW_ABOUT),
-		'A', B_COMMAND_KEY));
-
-	fMenuBar->AddItem(fSettingsMenu);
 	
 	fScriptMenu->AddItem(new BMenuItem("Generate...",
 		new BMessage(MSG_GENERATE_SCRIPT), 'P', B_COMMAND_KEY));
@@ -91,12 +86,16 @@ void HaikuPlot::_BuildLayout()
 		new BMessage(MSG_SAVE_SCRIPT), 'S', B_COMMAND_KEY));
 	
 	fMenuBar->AddItem(fScriptMenu);
+
+	fSettingsMenu->AddItem(new BMenuItem("About", new BMessage(SHOW_ABOUT),
+		'A', B_COMMAND_KEY));
+
+	fMenuBar->AddItem(fSettingsMenu);
 	
 	fPictureView = new BView(BRect(0,20,650,600), "picture_view",
 		B_FOLLOW_NONE, B_WILL_DRAW);
 		
-	fScriptView = new BTextView(BRect(400,20,1000,600), "script_view",
-		B_FOLLOW_NONE, B_WILL_DRAW);
+	fScriptView = new BTextView("script_view", B_WILL_DRAW);
 	
 	static const float spacing = be_control_look->DefaultItemSpacing() / 2;
 	fMainSplitView =
@@ -188,7 +187,7 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		}
 		case MSG_GENERATE_SCRIPT:
 		{
-			GeneratePlot(fRef);
+			SaveScript();
 			
 			break;
 		}
@@ -235,7 +234,6 @@ void HaikuPlot::SaveScript(void)
 		return;
 	
 	BTranslationUtils::WriteStyledEditFile(fScriptView, &file, "");
-	LoadPlot(fRef);
 }
 
 void HaikuPlot::GeneratePlot(const entry_ref &ref)
@@ -250,6 +248,7 @@ void HaikuPlot::GeneratePlot(const entry_ref &ref)
 	if (file.InitCheck() != B_OK)
 		return;
 	
+	fScriptView->SetText("");
 	if (BTranslationUtils::GetStyledText(&file, fScriptView) != B_OK)
 	{
 	}
