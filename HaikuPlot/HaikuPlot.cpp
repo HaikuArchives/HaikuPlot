@@ -180,7 +180,6 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		}
 		case SHOW_ABOUT:
 		{
-			//AboutWindow *about = new AboutWindow();
 			BAboutWindow *about = new BAboutWindow("HaikuPlot",
 				"application/x-vnd.haikuplot");
 			
