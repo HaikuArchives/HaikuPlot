@@ -19,6 +19,7 @@
 #include <TranslationUtils.h>
 #include <TranslationDefs.h>
 #include <TranslatorRoster.h>
+#include <SplitView.h>
 
 class HaikuPlot : public BWindow
 {
@@ -29,6 +30,8 @@ class HaikuPlot : public BWindow
 		void MessageReceived(BMessage *msg);
 		
 	private:
+		void _BuildLayout(void);
+		
 		void LoadPlot(const entry_ref &ref);
 		void LoadPlot(void);
 		void GeneratePlot(const entry_ref &ref);
@@ -45,6 +48,8 @@ class HaikuPlot : public BWindow
 		BFilePanel *fSavePanel;
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
+		
+		BSplitView *fMainSplitView;
 		
 		bool loading_plot;
 		

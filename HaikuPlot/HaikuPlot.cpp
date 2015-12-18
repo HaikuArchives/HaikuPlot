@@ -23,6 +23,10 @@
 #include <NodeMonitor.h>
 #include <SupportDefs.h>
 #include <NodeInfo.h>
+#include <LayoutBuilder.h>
+#include <GroupLayout.h>
+#include <GroupLayoutBuilder.h>
+#include <ControlLook.h>
 
 #include "AboutWindow.h"
 
@@ -41,45 +45,59 @@ const char* kTranslatorField = "be:translator";
 
 
 HaikuPlot::HaikuPlot(void)
-	: BWindow(BRect(100,100,700,600), "HaikuPlot", B_TITLED_WINDOW,
+	: BWindow(BRect(50,50,800,600), "HaikuPlot", B_TITLED_WINDOW,
 		B_ASYNCHRONOUS_CONTROLS),
 	fSavePanel(NULL)
 {
+	_BuildLayout();
+	
+	BMessenger msgr(NULL, this);
+	fOpenPanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL, 0, false);
+}
+
+void HaikuPlot::_BuildLayout()
+{
 	BRect r(Bounds());
 	r.bottom = 20;
-	BMenuBar *fMenuBar = new BMenuBar(r, "menubar");
-	AddChild(fMenuBar);
 	
+	BMenuBar *fMenuBar = new BMenuBar(r, "menubar");
 	BMenu *fFileMenu = new BMenu("File");
+	BMenu *menuSaveAs = new BMenu("Export as", B_ITEMS_IN_COLUMN);
+	BMenu *fSettingsMenu = new BMenu("Settings");
 	
 	fFileMenu->AddItem(new BMenuItem("Open Plot", new BMessage(LOAD_PLOT),
 		'L', B_COMMAND_KEY));
 	fFileMenu->AddSeparatorItem();
-	
-	BMenu *menuSaveAs = new BMenu("Export as", B_ITEMS_IN_COLUMN);
 	BTranslationUtils::AddTranslationItems(menuSaveAs,
 		B_TRANSLATOR_BITMAP);
-	
 	fFileMenu->AddItem(menuSaveAs);
-	
 	fFileMenu->AddItem(new BMenuItem("Generate Plot",
 		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	
 	fMenuBar->AddItem(fFileMenu);
 	
-	BMenu *fSettingsMenu = new BMenu("Settings");
-	
 	fSettingsMenu->AddItem(new BMenuItem("About", new BMessage(SHOW_ABOUT),
 		'A', B_COMMAND_KEY));
-		
+
 	fMenuBar->AddItem(fSettingsMenu);
 	
-	fPictureView = new BView(BRect(0,20,700,600), "picture_view",
-		B_FOLLOW_ALL, B_WILL_DRAW);
-	AddChild(fPictureView);
+	fPictureView = new BView(BRect(0,20,400,600), "picture_view",
+		B_FOLLOW_NONE, B_WILL_DRAW);
 	
-	BMessenger msgr(NULL, this);
-	fOpenPanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL, 0, false);
+	static const float spacing = be_control_look->DefaultItemSpacing() / 2;
+	fMainSplitView =
+		BLayoutBuilder::Split<>(B_VERTICAL)
+			.AddGroup(B_HORIZONTAL)
+				.Add(fPictureView)
+			.End()
+			.AddGroup(B_HORIZONTAL, spacing / 2)
+			.End()
+		.SetInsets(spacing)
+		.View();
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
+		.Add(fMenuBar)
+		.Add(fMainSplitView);
 }
 
 bool HaikuPlot::QuitRequested(void)
@@ -242,8 +260,8 @@ void HaikuPlot::LoadPlot(const entry_ref &ref)
 	fPictureView->ResizeTo(fPictureBitmap->Bounds().Width(),
 		fPictureBitmap->Bounds().Height());
 	
-	this->ResizeTo(fPictureView->Bounds().Width(),
-		fPictureView->Bounds().Height() + 20);
+	//this->ResizeTo(fPictureView->Bounds().Width(),
+	//	fPictureView->Bounds().Height() + 20);
 }
 
 void HaikuPlot::_SaveAs(BMessage* message)
