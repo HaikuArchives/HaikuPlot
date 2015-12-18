@@ -31,13 +31,19 @@ enum
 {
 	LOAD_PLOT = 'ldpt',
 	GENERATE_PLOT = 'gnpt',
-	TEXT_EDITED = 'txed',
+	MSG_SAVE_PANEL = 'mgsp',
+	MSG_OUTPUT_TYPE = 'mgot',
 	SAVE_PLOT = 'svas'
 };
 
+const char* kTypeField = "be:type";
+const char* kTranslatorField = "be:translator";
+
+
 HaikuPlot::HaikuPlot(void)
 	: BWindow(BRect(100,100,700,600), "HaikuPlot", B_TITLED_WINDOW,
-		B_ASYNCHRONOUS_CONTROLS)
+		B_ASYNCHRONOUS_CONTROLS),
+	fSavePanel(NULL)
 {
 	BRect r(Bounds());
 	r.bottom = 20;
@@ -100,6 +106,19 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 		{
 			fOpenPanel->Show();
 			loading_plot = false;
+			
+			break;
+		}
+		case MSG_OUTPUT_TYPE:
+		{
+			if (!fSavePanel)
+				_SaveAs(msg);
+			
+			break;
+		}
+		case MSG_SAVE_PANEL:
+		{
+			_SaveToFile(msg);
 			
 			break;
 		}
@@ -213,4 +232,73 @@ void HaikuPlot::LoadPlot(const entry_ref &ref)
 	
 	this->ResizeTo(fPictureView->Bounds().Width(),
 		fPictureView->Bounds().Height() + 20);
+}
+
+void HaikuPlot::_SaveAs(BMessage* message)
+{
+	// Read the translator and output type the user chose
+	translator_id outTranslator;
+	uint32 outType;
+	if (message->FindInt32(kTranslatorField,
+			reinterpret_cast<int32 *>(&outTranslator)) != B_OK
+		|| message->FindInt32(kTypeField,
+			reinterpret_cast<int32 *>(&outType)) != B_OK)
+		return;
+
+	// Add the chosen translator and output type to the
+	// message that the save panel will send back
+	BMessage panelMsg(MSG_SAVE_PANEL);
+	panelMsg.AddInt32(kTranslatorField, outTranslator);
+	panelMsg.AddInt32(kTypeField, outType);
+
+	// Create save panel and show it
+	BMessenger target(this);
+	fSavePanel = new (std::nothrow) BFilePanel(B_SAVE_PANEL,
+		&target, NULL, 0, false, &panelMsg);
+	if (!fSavePanel)
+		return;
+
+	fSavePanel->Window()->SetWorkspaces(B_CURRENT_WORKSPACE);
+	fSavePanel->Show();
+}
+
+
+void HaikuPlot::_SaveToFile(BMessage* message)
+{
+	// Read in where the file should be saved
+	entry_ref dirRef;
+	if (message->FindRef("directory", &dirRef) != B_OK)
+		return;
+
+	const char* filename;
+	if (message->FindString("name", &filename) != B_OK)
+		return;
+
+	// Read in the translator and type to be used
+	// to save the output image
+	translator_id outTranslator;
+	uint32 outType;
+	if (message->FindInt32(kTranslatorField,
+			reinterpret_cast<int32 *>(&outTranslator)) != B_OK
+		|| message->FindInt32(kTypeField,
+			reinterpret_cast<int32 *>(&outType)) != B_OK)
+		return;
+
+	// Find the translator_format information needed to
+	// write a MIME attribute for the image file
+	BTranslatorRoster* roster = BTranslatorRoster::Default();
+	const translation_format* outFormat = NULL;
+	int32 outCount = 0;
+	if (roster->GetOutputFormats(outTranslator, &outFormat, &outCount) != B_OK
+		|| outCount < 1)
+		return;
+
+	int32 i;
+	for (i = 0; i < outCount; i++) {
+		if (outFormat[i].group == B_TRANSLATOR_BITMAP && outFormat[i].type
+				== outType)
+			break;
+	}
+	if (i == outCount)
+		return;
 }

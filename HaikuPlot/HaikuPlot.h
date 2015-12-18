@@ -31,7 +31,11 @@ class HaikuPlot : public BWindow
 		void PrepareNodeMonitoring(const entry_ref &ref);
 		void HandleNodeMonitoring(BMessage *msg);
 		
+		void _SaveAs(BMessage *message);
+		void _SaveToFile(BMessage *message);
+		
 		BFilePanel *fOpenPanel;
+		BFilePanel *fSavePanel;
 		BBitmap *fPictureBitmap;
 		BView *fPictureView;
 		
