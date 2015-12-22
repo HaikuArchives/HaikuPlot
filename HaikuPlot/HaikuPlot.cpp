@@ -187,6 +187,8 @@ void HaikuPlot::MessageReceived(BMessage *msg)
 			about->AddCopyright(2015, "Vale Tolpegin");
 			
 			about->Show();
+			
+			break;
 		}
 		case MSG_GENERATE_SCRIPT:
 		{
