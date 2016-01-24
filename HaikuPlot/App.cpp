@@ -22,7 +22,9 @@ App::App(void)
 	mainWin->Show();
 }
 
-int main(void)
+
+int
+main(void)
 {
 	App app;
 	app.Run();
