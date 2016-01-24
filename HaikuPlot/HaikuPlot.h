@@ -21,16 +21,16 @@
 class HaikuPlot : public BWindow
 {
 	public:
-		HaikuPlot(void);
+		HaikuPlot();
 
-		bool		QuitRequested(void);
+		bool		QuitRequested();
 		void		MessageReceived(BMessage *msg);
 
 	private:
-		void		_BuildLayout(void);
+		void		_BuildLayout();
 
 		void		LoadPlot(const entry_ref &ref);
-		void		LoadPlot(void);
+		void		LoadPlot();
 		void		GeneratePlot(const entry_ref &ref);
 
 		void		PrepareNodeMonitoring(const entry_ref &ref);
@@ -41,15 +41,15 @@ class HaikuPlot : public BWindow
 		void		SaveToFile(BDirectory* dir, const char* name, BBitmap* bitmap,
 						   const translation_format* format);
 
-		void		SaveScript(void);
+		void		SaveScript();
 
-		BFilePanel	*fOpenPanel;
-		BFilePanel	*fSavePanel;
-		BBitmap		*fPictureBitmap;
-		BView		*fPictureView;
-		BTextView	*fScriptView;
+		BFilePanel*	fOpenPanel;
+		BFilePanel*	fSavePanel;
+		BBitmap*	fPictureBitmap;
+		BView*		fPictureView;
+		BTextView*	fScriptView;
 
-		BSplitView	*fMainSplitView;
+		BSplitView*	fMainSplitView;
 
 		bool		loading_plot;
 		entry_ref	fRef;

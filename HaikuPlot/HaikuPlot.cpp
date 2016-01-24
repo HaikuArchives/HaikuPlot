@@ -8,24 +8,24 @@
 #include <Bitmap.h>
 #include <BitmapStream.h>
 #include <Button.h>
-#include <View.h>
-#include <TextView.h>
+#include <ControlLook.h>
 #include <Directory.h>
-#include <Path.h>
 #include <File.h>
+#include <GroupLayout.h>
+#include <GroupLayoutBuilder.h>
+#include <LayoutBuilder.h>
 #include <Menu.h>
 #include <MenuItem.h>
 #include <Messenger.h>
-#include <stdlib.h>
-#include <Roster.h>
-#include <NodeMonitor.h>
-#include <SupportDefs.h>
 #include <NodeInfo.h>
-#include <LayoutBuilder.h>
-#include <GroupLayout.h>
-#include <GroupLayoutBuilder.h>
-#include <ControlLook.h>
+#include <NodeMonitor.h>
+#include <Path.h>
 #include <private/interface/AboutWindow.h>
+#include <Roster.h>
+#include <stdlib.h>
+#include <SupportDefs.h>
+#include <TextView.h>
+#include <View.h>
 
 enum
 {
