@@ -11,6 +11,7 @@
 #include <ControlLook.h>
 #include <Directory.h>
 #include <File.h>
+#include <FindDirectory.h>
 #include <GroupLayout.h>
 #include <GroupLayoutBuilder.h>
 #include <LayoutBuilder.h>
@@ -22,6 +23,7 @@
 #include <Path.h>
 #include <private/interface/AboutWindow.h>
 #include <Roster.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <SupportDefs.h>
 #include <TextView.h>
@@ -36,7 +38,8 @@ enum
 	SAVE_PLOT = 'svas',
 	SHOW_ABOUT = 'swat',
 	MSG_GENERATE_SCRIPT = 'mgpt',
-	MSG_SAVE_SCRIPT = 'mgss'
+	MSG_SAVE_SCRIPT = 'mgss',
+	MSG_SAVE_SETTINGS = 'svse'
 };
 
 const char* kTypeField = "be:type";
@@ -52,6 +55,10 @@ HaikuPlot::HaikuPlot(void)
 
 	BMessenger msgr(NULL, this);
 	fOpenPanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL, 0, false);
+
+	fScriptPath = BPath();
+
+	_LoadSettings();
 }
 
 
@@ -266,6 +273,7 @@ HaikuPlot::GeneratePlot(const entry_ref &ref)
 	}
 
 	BPath path(&real_ref);
+	fScriptPath = BPath(path.Path());
 
 	BString *command = new
 		BString("gnuplot-x86 -e 'set output \"outpic.png\"' ");
@@ -278,6 +286,8 @@ HaikuPlot::GeneratePlot(const entry_ref &ref)
 
 		LoadPlot(pic_ref);
 	}
+
+	_SaveSettings();
 }
 
 
@@ -316,6 +326,68 @@ HaikuPlot::LoadPlot(const entry_ref &ref)
 		B_FOLLOW_TOP | B_FOLLOW_LEFT, 0);
 	fPictureView->ResizeTo(fPictureBitmap->Bounds().Width(),
 		fPictureBitmap->Bounds().Height());
+}
+
+
+status_t
+HaikuPlot::_SaveSettings()
+{
+	BPath p;
+	BFile f;
+	BMessage m(MSG_SAVE_SETTINGS);
+
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &p) != B_OK)
+		return B_ERROR;
+	p.Append("HaikuPlot");
+
+	f.SetTo(p.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+	if (f.InitCheck() != B_OK)
+		return B_ERROR;
+
+	status_t status;
+	if (strcmp(fScriptPath.Path(), "") != 0) {
+		status = m.AddString("script_path", fScriptPath.Path());
+
+		if (status != B_OK)
+			return B_ERROR;
+	}
+
+	if (m.Flatten(&f) != B_OK)
+		return B_ERROR;
+
+	return B_OK;
+}
+
+
+status_t
+HaikuPlot::_LoadSettings()
+{
+	BPath p;
+	BFile f;
+	BMessage m(MSG_SAVE_SETTINGS);
+
+	if (find_directory(B_USER_SETTINGS_DIRECTORY, &p) != B_OK)
+		return B_ERROR;
+	p.Append("HaikuPlot");
+
+	f.SetTo(p.Path(), B_READ_ONLY);
+	if (f.InitCheck() != B_OK)
+		return B_ERROR;
+
+	if (m.Unflatten(&f) != B_OK)
+		return B_ERROR;
+
+	BString scriptPath;
+	if (m.FindString("script_path", &scriptPath) != B_OK)
+		return B_ERROR;
+
+	BEntry entry(scriptPath.String());
+	entry_ref ref;
+	entry.GetRef(&ref);
+
+	GeneratePlot(ref);
+
+	return B_OK;
 }
 
 

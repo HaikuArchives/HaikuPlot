@@ -11,6 +11,7 @@
 #include <FilePanel.h>
 #include <MenuBar.h>
 #include <Node.h>
+#include <Path.h>
 #include <SplitView.h>
 #include <String.h>
 #include <TranslationUtils.h>
@@ -43,6 +44,9 @@ class HaikuPlot : public BWindow
 
 		void		SaveScript();
 
+		status_t	_SaveSettings();
+		status_t	_LoadSettings();
+
 		BFilePanel*	fOpenPanel;
 		BFilePanel*	fSavePanel;
 		BBitmap*	fPictureBitmap;
@@ -54,6 +58,7 @@ class HaikuPlot : public BWindow
 		bool		loading_plot;
 		entry_ref	fRef;
 		node_ref	fNodeRef;
+		BPath		fScriptPath;
 };
 
 #endif
