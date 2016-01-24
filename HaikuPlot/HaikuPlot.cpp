@@ -8,6 +8,7 @@
 #include <Bitmap.h>
 #include <BitmapStream.h>
 #include <Button.h>
+#include <Catalog.h>
 #include <ControlLook.h>
 #include <Directory.h>
 #include <File.h>
@@ -45,10 +46,12 @@ enum
 const char* kTypeField = "be:type";
 const char* kTranslatorField = "be:translator";
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "HaikuPlot"
 
 HaikuPlot::HaikuPlot(void)
-	: BWindow(BRect(50,50,1000,600), "HaikuPlot", B_TITLED_WINDOW,
-		B_ASYNCHRONOUS_CONTROLS),
+	: BWindow(BRect(50,50,1000,600), B_TRANSLATE_SYSTEM_NAME("HaikuPlot"),
+		B_TITLED_WINDOW, B_ASYNCHRONOUS_CONTROLS),
 	fSavePanel(NULL)
 {
 	_BuildLayout();
@@ -69,14 +72,14 @@ HaikuPlot::_BuildLayout()
 	r.bottom = 20;
 
 	BMenuBar *fMenuBar = new BMenuBar(r, "menubar");
-	BMenu *fFileMenu = new BMenu("File");
-	BMenu *fMenuSaveAs = new BMenu("Export as", B_ITEMS_IN_COLUMN);
-	BMenu *fSettingsMenu = new BMenu("Settings");
-	BMenu *fScriptMenu = new BMenu("Script");
+	BMenu *fFileMenu = new BMenu(B_TRANSLATE("File"));
+	BMenu *fMenuSaveAs = new BMenu(B_TRANSLATE("Export as"), B_ITEMS_IN_COLUMN);
+	BMenu *fSettingsMenu = new BMenu(B_TRANSLATE("Settings"));
+	BMenu *fScriptMenu = new BMenu(B_TRANSLATE("Script"));
 
-	fFileMenu->AddItem(new BMenuItem("Open Plot", new BMessage(LOAD_PLOT),
+	fFileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Plot"), new BMessage(LOAD_PLOT),
 		'L', B_COMMAND_KEY));
-	fFileMenu->AddItem(new BMenuItem("Open Script",
+	fFileMenu->AddItem(new BMenuItem(B_TRANSLATE("Open Script"),
 		new BMessage(GENERATE_PLOT), 'G', B_COMMAND_KEY));
 	fFileMenu->AddSeparatorItem();
 	BTranslationUtils::AddTranslationItems(fMenuSaveAs,
@@ -85,16 +88,16 @@ HaikuPlot::_BuildLayout()
 
 	fMenuBar->AddItem(fFileMenu);
 
-	fScriptMenu->AddItem(new BMenuItem("Generate...",
+	fScriptMenu->AddItem(new BMenuItem(B_TRANSLATE("Generate..."),
 		new BMessage(MSG_GENERATE_SCRIPT), 'P', B_COMMAND_KEY));
 	fScriptMenu->AddSeparatorItem();
-	fScriptMenu->AddItem(new BMenuItem("Save...",
+	fScriptMenu->AddItem(new BMenuItem(B_TRANSLATE("Save..."),
 		new BMessage(MSG_SAVE_SCRIPT), 'S', B_COMMAND_KEY));
 
 	fMenuBar->AddItem(fScriptMenu);
 
-	fSettingsMenu->AddItem(new BMenuItem("About", new BMessage(SHOW_ABOUT),
-		'A', B_COMMAND_KEY));
+	fSettingsMenu->AddItem(new BMenuItem(B_TRANSLATE("About"),
+		new BMessage(SHOW_ABOUT), 'A', B_COMMAND_KEY));
 
 	fMenuBar->AddItem(fSettingsMenu);
 
@@ -189,10 +192,10 @@ HaikuPlot::MessageReceived(BMessage *msg)
 		}
 		case SHOW_ABOUT:
 		{
-			BAboutWindow *about = new BAboutWindow("HaikuPlot",
+			BAboutWindow *about = new BAboutWindow(B_TRANSLATE("HaikuPlot"),
 				"application/x-vnd.haikuplot");
 
-			about->AddDescription("A GUI interface to the popular command line graphing tool gnuplot");
+			about->AddDescription(B_TRANSLATE("A GUI interface to the popular command line graphing tool gnuplot"));
 			about->AddCopyright(2015, "Vale Tolpegin");
 
 			about->Show();
@@ -271,6 +274,8 @@ HaikuPlot::GeneratePlot(const entry_ref &ref)
 	if (BTranslationUtils::GetStyledText(&file, fScriptView) != B_OK) {
 		return;
 	}
+
+	fScriptView->SetText(B_TRANSLATE(fScriptView->Text()));
 
 	BPath path(&real_ref);
 	fScriptPath = BPath(path.Path());
