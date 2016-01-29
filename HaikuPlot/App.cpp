@@ -18,11 +18,13 @@ class App : public BApplication
 App::App(void)
 	: BApplication("application/x-vnd.haikuplot")
 {
-	HaikuPlot *mainWin = new HaikuPlot();
+	HaikuPlot* mainWin = new HaikuPlot();
 	mainWin->Show();
 }
 
-int main(void)
+
+int
+main(void)
 {
 	App app;
 	app.Run();
